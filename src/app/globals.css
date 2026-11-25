@@ -1,0 +1,134 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-cormorant-sc), Georgia, serif;
+  --font-heading: var(--font-geologica), system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --color-brand-abyss: #031725;
+  --color-brand-royal: #022E5B;
+  --color-brand-sky: #499BED;
+  --color-brand-ice: #A1C6F6;
+  --color-brand-frost: #DAEAFF;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  --background: #DAEAFF;
+  --foreground: #031725;
+  --card: #FFFFFF;
+  --card-foreground: #031725;
+  --popover: #FFFFFF;
+  --popover-foreground: #031725;
+  --primary: #022E5B;
+  --primary-foreground: #DAEAFF;
+  --secondary: #A1C6F6;
+  --secondary-foreground: #031725;
+  --muted: #C6DFFF;
+  --muted-foreground: #022E5B;
+  --accent: #499BED;
+  --accent-foreground: #031725;
+  --destructive: #C82333;
+  --border: rgba(2, 46, 91, 0.18);
+  --input: rgba(2, 46, 91, 0.22);
+  --ring: #499BED;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #031725;
+  --sidebar-primary: #022E5B;
+  --sidebar-primary-foreground: #DAEAFF;
+  --sidebar-accent: #DAEAFF;
+  --sidebar-accent-foreground: #031725;
+  --sidebar-border: rgba(2, 46, 91, 0.18);
+  --sidebar-ring: #499BED;
+}
+
+.dark {
+  --background: #031725;
+  --foreground: #DAEAFF;
+  --card: #022E5B;
+  --card-foreground: #DAEAFF;
+  --popover: #022E5B;
+  --popover-foreground: #DAEAFF;
+  --primary: #499BED;
+  --primary-foreground: #031725;
+  --secondary: #063C73;
+  --secondary-foreground: #DAEAFF;
+  --muted: #052546;
+  --muted-foreground: #A1C6F6;
+  --accent: #499BED;
+  --accent-foreground: #031725;
+  --destructive: #F87171;
+  --border: rgba(161, 198, 246, 0.22);
+  --input: rgba(161, 198, 246, 0.28);
+  --ring: #499BED;
+  --sidebar: #022E5B;
+  --sidebar-foreground: #DAEAFF;
+  --sidebar-primary: #499BED;
+  --sidebar-primary-foreground: #031725;
+  --sidebar-accent: #052546;
+  --sidebar-accent-foreground: #DAEAFF;
+  --sidebar-border: rgba(161, 198, 246, 0.22);
+  --sidebar-ring: #499BED;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--font-cormorant-sc), Georgia, serif;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-cormorant-sc), Georgia, serif;
+    font-size: 17px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-geologica), system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+.font-heading {
+  font-family: var(--font-geologica), system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-cormorant-sc), Georgia, serif;
+}

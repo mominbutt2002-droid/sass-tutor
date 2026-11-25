@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String           @id @default(cuid())
+  email                String           @unique
+  passwordHash         String
+  name                 String
+  plan                 String           @default("FREE") // "FREE" | "PRO"
+  preferredLevel       String           @default("BEGINNER") // "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT"
+  timezone             String           @default("UTC")
+  stripeCustomerId     String?          @unique
+  stripeSubscriptionId String?          @unique
+  stripePriceId        String?
+  subscriptionStatus   String?          // "active" | "trialing" | "canceled" | "past_due"
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  dailyUsage           DailyUsage[]
+  lessonProgress       LessonProgress[]
+  tutorMessages        TutorMessage[]
+}
+
+model DailyUsage {
+  id          String   @id @default(cuid())
+  userId      String
+  dateKey     String   // YYYY-MM-DD in user's timezone; new day at 00:00 resets quota
+  secondsUsed Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model LessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonSlug  String
+  stage       String    // "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT"
+  completed   Boolean   @default(false)
+  quizScore   Int       @default(0)
+  unlockedAt  DateTime  @default(now())
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonSlug])
+  @@index([userId])
+}
+
+model TutorMessage {
+  id           String   @id @default(cuid())
+  userId       String
+  mode         String   // "GRAMMAR" | "QUIZ" | "SPEAKING" | "PRONUNCIATION" | "LISTENING" | "ERROR_ANALYSIS"
+  stage        String   // "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT"
+  role         String   // "user" | "assistant"
+  content      String
+  feedbackJson String?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, mode, createdAt])
+}

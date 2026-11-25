@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model User {
@@ -62,6 +63,7 @@ model TutorMessage {
   role         String   // "user" | "assistant"
   content      String
   feedbackJson String?
+  audioKey     String?  // Neon Object Storage key in the "uploads" bucket
   createdAt    DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

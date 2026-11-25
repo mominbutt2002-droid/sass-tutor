@@ -89,6 +89,10 @@ function TutorStudioContent() {
   const [recording, setRecording] = useState(false);
   const [pronLoading, setPronLoading] = useState(false);
   const [pronResult, setPronResult] = useState<PronunciationResult | null>(null);
+  const [pronAudioUrl, setPronAudioUrl] = useState<string | null>(null);
+  const [savedRecordings, setSavedRecordings] = useState<
+    { id: string; content: string; audioUrl: string | null; createdAt: string }[]
+  >([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -108,6 +112,24 @@ function TutorStudioContent() {
   }, [user?.preferredLevel]);
 
   const isPro = user?.plan === "PRO";
+
+  const loadSavedRecordings = async () => {
+    try {
+      const res = await fetch("/api/storage/recordings", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedRecordings(data.recordings ?? []);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    if (isPro) {
+      loadSavedRecordings();
+    }
+  }, [isPro]);
 
   const runGrammarCheck = async (deepAnalysis: boolean) => {
     setApiError(null);
@@ -211,11 +233,13 @@ function TutorStudioContent() {
               }),
             });
             const data = await res.json();
+            if (data.audioUrl) setPronAudioUrl(data.audioUrl);
             if (!res.ok) {
               setApiError(data.message || data.error || "Pronunciation error");
               return;
             }
             setPronResult(data.result);
+            loadSavedRecordings();
           } catch {
             setApiError("Network error");
           } finally {
@@ -607,6 +631,17 @@ function TutorStudioContent() {
                   )}
                 </div>
 
+                {pronAudioUrl && (
+                  <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1.5">
+                    <div className="font-heading text-xs text-muted-foreground">
+                      {locale === "ru"
+                        ? "Запись сохранена в Neon Object Storage:"
+                        : "Recording stored in Neon Object Storage:"}
+                    </div>
+                    <audio controls src={pronAudioUrl} className="w-full h-9" />
+                  </div>
+                )}
+
                 {pronResult && (
                   <div className="space-y-3 rounded-xl border border-[#499BED]/40 bg-muted/40 p-4">
                     <div className="flex items-center justify-between">
@@ -644,6 +679,29 @@ function TutorStudioContent() {
                         ))}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {savedRecordings.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    <div className="font-heading text-xs uppercase text-muted-foreground">
+                      {locale === "ru"
+                        ? "Сохранённые записи произношения (Neon Object Storage)"
+                        : "Saved Pronunciation Recordings (Neon Object Storage)"}
+                    </div>
+                    {savedRecordings.slice(0, 3).map((rec) => (
+                      <div
+                        key={rec.id}
+                        className="rounded-xl border border-border bg-card p-3 space-y-1.5"
+                      >
+                        <div className="text-xs text-muted-foreground">
+                          {rec.content}
+                        </div>
+                        {rec.audioUrl && (
+                          <audio controls src={rec.audioUrl} className="w-full h-8" />
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>

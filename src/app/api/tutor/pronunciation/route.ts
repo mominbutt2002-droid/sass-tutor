@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { GEMINI_MODEL, evaluatePronunciationAudio } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import { canAccessFeature, type LearningStage } from "@/lib/quota";
+import { uploadPronunciationAudio } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
@@ -35,6 +36,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Persist audio recording to Neon Object Storage ("uploads" bucket)
+  const storedAudio = await uploadPronunciationAudio({
+    userId: user.id,
+    audioBase64,
+    mimeType,
+  }).catch((err) => {
+    console.warn("Neon Object Storage upload failed:", err);
+    return null;
+  });
+
   try {
     const result = await evaluatePronunciationAudio({
       stage,
@@ -52,10 +63,16 @@ export async function POST(req: NextRequest) {
         role: "assistant",
         content: `Score: ${result.score}/100 — ${result.stressFeedback}`,
         feedbackJson: JSON.stringify(result),
+        audioKey: storedAudio?.key ?? null,
       },
     });
 
-    return NextResponse.json({ result, model: GEMINI_MODEL });
+    return NextResponse.json({
+      result,
+      model: GEMINI_MODEL,
+      audioKey: storedAudio?.key ?? null,
+      audioUrl: storedAudio?.url ?? null,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "AI_ERROR";
     if (message === "GEMINI_API_KEY_MISSING") {
@@ -64,6 +81,8 @@ export async function POST(req: NextRequest) {
           error: "GEMINI_API_KEY_MISSING",
           message:
             "Добавьте GEMINI_API_KEY в файл .env для анализа аудио через gemini-3.5-flash-lite.",
+          audioKey: storedAudio?.key ?? null,
+          audioUrl: storedAudio?.url ?? null,
         },
         { status: 503 }
       );
